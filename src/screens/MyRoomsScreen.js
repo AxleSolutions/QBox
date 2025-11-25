@@ -72,7 +72,9 @@ export const MyRoomsScreen = ({ navigation }) => {
           style: 'destructive',
           onPress: async () => {
             try {
-              const response = await roomAPI.deleteRoom(room._id);
+              console.log('Deleting room with ID:', room._id);
+              const response = await roomsAPI.deleteRoom(room._id);
+              console.log('Delete response:', response);
               if (response.success) {
                 Alert.alert('Success', 'Room deleted successfully');
                 fetchRooms(); // Refresh the list
@@ -80,7 +82,9 @@ export const MyRoomsScreen = ({ navigation }) => {
                 Alert.alert('Error', response.message || 'Failed to delete room');
               }
             } catch (error) {
-              Alert.alert('Error', 'Failed to delete room');
+              console.error('Delete room error:', error);
+              const errorMessage = error.response?.data?.message || error.message || 'Failed to delete room';
+              Alert.alert('Error', errorMessage);
             }
           }
         }

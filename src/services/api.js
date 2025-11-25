@@ -7,19 +7,24 @@ import io from 'socket.io-client';
 // - Android Emulator: Use 10.0.2.2
 // - iOS Simulator: Use localhost
 // - Real Device: Use your computer's IP (run: ipconfig)
+// - Production: Use your deployed backend URL
 
-// For Android Emulator:
-// const API_URL = 'http://10.0.2.2:5000/api';
-// const SOCKET_URL = 'http://10.0.2.2:5000';
+// For Production (Render deployment):
+const API_URL = 'https://qbox-backend.onrender.com/api';
+const SOCKET_URL = 'https://qbox-backend.onrender.com';
 
-// For Real Android Device (uncomment these and comment above):
-const API_URL = 'http://10.207.41.84:3000/api';
-const SOCKET_URL = 'http://10.207.41.84:3000';
+// For Android Emulator (Development):
+// const API_URL = 'http://10.0.2.2:3000/api';
+// const SOCKET_URL = 'http://10.0.2.2:3000';
+
+// For Real Device (Local Development):
+// const API_URL = 'http://192.168.1.19:3000/api';
+// const SOCKET_URL = 'http://192.168.1.19:3000';
 
 // Create axios instance
 const api = axios.create({
   baseURL: API_URL,
-  timeout: 15000,
+  timeout: 90000, // 90 seconds to handle Render free tier cold starts
   headers: {
     'Content-Type': 'application/json',
   },
@@ -69,6 +74,16 @@ export const getSocket = () => socket;
 
 // Auth API
 export const authAPI = {
+  // Google Sign-In
+  googleAuth: async (idToken) => {
+    const response = await api.post('/auth/google', { idToken });
+    if (response.data.success && response.data.token) {
+      await AsyncStorage.setItem('token', response.data.token);
+      await AsyncStorage.setItem('user', JSON.stringify(response.data.user));
+    }
+    return response.data;
+  },
+
   sendVerificationCode: async (email) => {
     const response = await api.post('/auth/send-verification', { email });
     return response.data;
@@ -90,9 +105,9 @@ export const authAPI = {
 
   login: async (email, password) => {
     const response = await api.post('/auth/login', { email, password });
-    if (response.data.success && response.data.data.token) {
-      await AsyncStorage.setItem('token', response.data.data.token);
-      await AsyncStorage.setItem('user', JSON.stringify(response.data.data.user));
+    if (response.data.success && response.data.token) {
+      await AsyncStorage.setItem('token', response.data.token);
+      await AsyncStorage.setItem('user', JSON.stringify(response.data.user));
     }
     return response.data;
   },
@@ -128,9 +143,14 @@ export const authAPI = {
 };
 
 // Room API
-export const roomAPI = {
+export const roomsAPI = {
   createRoom: async (roomName, questionsVisible = true) => {
     const response = await api.post('/rooms', { roomName, questionsVisible });
+    return response.data;
+  },
+
+  createOneTimeRoom: async (lecturerName, questionsVisible = true) => {
+    const response = await api.post('/rooms/one-time', { lecturerName, questionsVisible });
     return response.data;
   },
 
@@ -198,6 +218,9 @@ export const roomAPI = {
     return response.data;
   },
 };
+
+// Backward compatibility alias
+export const roomAPI = roomsAPI;
 
 // Question API
 export const questionAPI = {

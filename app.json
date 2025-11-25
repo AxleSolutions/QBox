@@ -5,7 +5,9 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
+    "icon": "./assets/Logo/icon.png",
     "splash": {
+      "image": "./assets/Logo/icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#6366F1"
     },
@@ -17,10 +19,33 @@
       "bundleIdentifier": "com.qbox.anonymousqa"
     },
     "android": {
-      "package": "com.qbox.anonymousqa"
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/Logo/icon.png",
+        "backgroundColor": "#6366F1"
+      },
+      "package": "com.qbox.anonymousqa",
+      "versionCode": 3,
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE"
+      ]
     },
     "web": {
       "bundler": "metro"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "77ce96f0-ebc2-4ed0-96f7-26999a3f486f"
+      }
+    },
+    "plugins": [
+      "expo-web-browser",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.531788294144-1ilnampcqrrjianujc9u9q27ts8uqhg3"
+        }
+      ]
+    ]
   }
 }

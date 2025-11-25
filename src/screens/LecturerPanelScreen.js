@@ -35,7 +35,7 @@ export const LecturerPanelScreen = ({ navigation, route }) => {
         const userStr = await AsyncStorage.getItem('user');
         if (userStr) {
           const user = JSON.parse(userStr);
-          setLecturerName(user.name || '');
+          setLecturerName(user.fullName || '');
         }
       } catch (error) {
         console.error('Error getting lecturer name:', error);
@@ -336,7 +336,7 @@ export const LecturerPanelScreen = ({ navigation, route }) => {
           style: 'destructive',
           onPress: async () => {
             try {
-              const response = await roomAPI.closeRoom(roomId);
+              const response = await roomsAPI.closeRoom(roomId);
 
               if (response.success) {
                 setIsRoomClosed(true);
@@ -355,7 +355,7 @@ export const LecturerPanelScreen = ({ navigation, route }) => {
 
   const handleToggleVisibility = async () => {
     try {
-      const response = await roomAPI.toggleVisibility(roomId);
+      const response = await roomsAPI.toggleVisibility(roomId);
 
       if (response.success) {
         setQuestionsVisible(response.data.questionsVisible);

@@ -25,6 +25,7 @@ export const SettingsScreen = ({ navigation, route }) => {
   const [tempEmail, setTempEmail] = useState('');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [activeModal, setActiveModal] = useState(null);
+  const [isOneTimeUser, setIsOneTimeUser] = useState(false);
   
   // Password change states
   const [currentPassword, setCurrentPassword] = useState('');
@@ -43,9 +44,19 @@ export const SettingsScreen = ({ navigation, route }) => {
 
   // Fetch user profile data and student tag
   useEffect(() => {
+    checkOneTimeUser();
     fetchUserProfile();
     loadStudentTag();
   }, []);
+
+  const checkOneTimeUser = async () => {
+    try {
+      const isOneTime = await AsyncStorage.getItem('isOneTimeUser');
+      setIsOneTimeUser(isOneTime === 'true');
+    } catch (error) {
+      setIsOneTimeUser(false);
+    }
+  };
 
   const loadStudentTag = async () => {
     try {
@@ -226,55 +237,63 @@ export const SettingsScreen = ({ navigation, route }) => {
           </Text>
         </View>
 
-        {/* Profile Section */}
-        <SectionHeader title="Profile" />
-        <Card style={styles.section}>
-          {userType === 'student' ? (
-            <View style={styles.profileCard}>
-              <View style={styles.avatarContainer}>
-                <Text style={styles.avatarEmoji}>🎭</Text>
-              </View>
-              <View style={styles.profileInfo}>
-                <Text style={styles.anonymousLabel}>Your Anonymous Tag</Text>
-                <Text style={styles.anonymousTag}>{anonymousTag}</Text>
-                <TouchableOpacity onPress={handleRegenerateTag}>
-                  <Text style={styles.regenerateLink}>🔄 Regenerate Tag</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ) : (
-            <View style={styles.profileCard}>
-              <View style={[styles.avatarContainer, styles.lecturerAvatar]}>
-                <Text style={styles.avatarEmoji}>👨‍🏫</Text>
-              </View>
-              <View style={styles.profileInfo}>
-                <Text style={styles.lecturerName}>{userData?.name || 'Loading...'}</Text>
-                <Text style={styles.lecturerEmail}>{userData?.email || 'Loading...'}</Text>
-                <TouchableOpacity onPress={handleOpenEditProfile}>
-                  <Text style={styles.regenerateLink}>Edit Profile</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          )}
-        </Card>
+        {/* Profile Section - Hidden for one-time users */}
+        {!isOneTimeUser && (
+          <>
+            <SectionHeader title="Profile" />
+            <Card style={styles.section}>
+              {userType === 'student' ? (
+                <View style={styles.profileCard}>
+                  <View style={styles.avatarContainer}>
+                    <Text style={styles.avatarEmoji}>🎭</Text>
+                  </View>
+                  <View style={styles.profileInfo}>
+                    <Text style={styles.anonymousLabel}>Your Anonymous Tag</Text>
+                    <Text style={styles.anonymousTag}>{anonymousTag}</Text>
+                    <TouchableOpacity onPress={handleRegenerateTag}>
+                      <Text style={styles.regenerateLink}>🔄 Regenerate Tag</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ) : (
+                <View style={styles.profileCard}>
+                  <View style={[styles.avatarContainer, styles.lecturerAvatar]}>
+                    <Text style={styles.avatarEmoji}>👨‍🏫</Text>
+                  </View>
+                  <View style={styles.profileInfo}>
+                    <Text style={styles.lecturerName}>{userData?.name || 'Loading...'}</Text>
+                    <Text style={styles.lecturerEmail}>{userData?.email || 'Loading...'}</Text>
+                    <TouchableOpacity onPress={handleOpenEditProfile}>
+                      <Text style={styles.regenerateLink}>Edit Profile</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
+            </Card>
+          </>
+        )}
 
-        {/* Notifications Section */}
-        <SectionHeader title="Preferences" />
-        <Card style={styles.section}>
-          <SettingItem
-            icon="🔔"
-            title="Notifications"
-            description="Receive updates about your questions"
-            rightComponent={
-              <Switch
-                value={notificationsEnabled}
-                onValueChange={setNotificationsEnabled}
-                trackColor={{ false: colors.border, true: colors.primary }}
-                thumbColor={colors.white}
+        {/* Notifications Section - Hidden for one-time users */}
+        {!isOneTimeUser && (
+          <>
+            <SectionHeader title="Preferences" />
+            <Card style={styles.section}>
+              <SettingItem
+                icon="🔔"
+                title="Notifications"
+                description="Receive updates about your questions"
+                rightComponent={
+                  <Switch
+                    value={notificationsEnabled}
+                    onValueChange={setNotificationsEnabled}
+                    trackColor={{ false: colors.border, true: colors.primary }}
+                    thumbColor={colors.white}
+                  />
+                }
               />
-            }
-          />
-        </Card>
+            </Card>
+          </>
+        )}
 
         {/* Security Section - Only for Lecturers */}
         {userType === 'lecturer' && (

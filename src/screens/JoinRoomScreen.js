@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { Screen, Button, RoomCodeInput } from '../components';
 import { colors, spacing, typography } from '../theme';
-import { roomAPI } from '../services/api';
+import { roomsAPI } from '../services/api';
 
 export const JoinRoomScreen = ({ navigation }) => {
   const [roomCode, setRoomCode] = useState('');
@@ -19,7 +19,7 @@ export const JoinRoomScreen = ({ navigation }) => {
     setError('');
 
     try {
-      const response = await roomAPI.joinRoom(roomCode.trim().toUpperCase());
+      const response = await roomsAPI.joinRoom(roomCode.trim().toUpperCase());
 
       if (response.success) {
         const roomData = response.data;

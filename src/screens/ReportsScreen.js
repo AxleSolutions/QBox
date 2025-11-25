@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { Card } from '../components';
 import { colors, spacing, typography, borderRadius } from '../theme';
-import { roomAPI } from '../services/api';
+import { roomsAPI, questionAPI } from '../services/api';
 
 export const ReportsScreen = ({ route, navigation }) => {
   const { roomId } = route.params || {};
@@ -30,10 +30,10 @@ export const ReportsScreen = ({ route, navigation }) => {
   const fetchRoomData = async () => {
     try {
       setLoading(true);
-      const room = await roomAPI.getRoom(roomId);
+      const room = await roomsAPI.getRoom(roomId);
       setRoomData(room);
       
-      const questionsData = await roomAPI.getQuestions(roomId);
+      const questionsData = await roomsAPI.getQuestions(roomId);
       setQuestions(questionsData);
     } catch (error) {
       Alert.alert('Error', 'Failed to fetch room data');

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { Screen, Button, Input, Card } from '../components';
 import { colors, spacing, typography, borderRadius } from '../theme';
-import { roomAPI } from '../services/api';
+import { roomsAPI } from '../services/api';
 
 export const CreateRoomScreen = ({ navigation }) => {
   const [roomName, setRoomName] = useState('');
@@ -19,7 +19,7 @@ export const CreateRoomScreen = ({ navigation }) => {
     setLoading(true);
 
     try {
-      const response = await roomAPI.createRoom(roomName.trim(), questionsVisible);
+      const response = await roomsAPI.createRoom(roomName.trim(), questionsVisible);
 
       if (response.success) {
         const createdRoom = response.data;

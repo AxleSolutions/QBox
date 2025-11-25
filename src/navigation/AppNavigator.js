@@ -7,8 +7,6 @@ import { colors, typography } from '../theme';
 import {
   OnboardingScreen,
   LoginScreen,
-  SignUpScreen,
-  ForgotPasswordScreen,
   MyRoomsScreen,
   JoinRoomScreen,
   CreateRoomScreen,
@@ -57,17 +55,7 @@ export const AppNavigator = () => {
         <Stack.Screen
           name="Login"
           component={LoginScreen}
-          options={{ title: 'Sign In' }}
-        />
-        <Stack.Screen
-          name="SignUp"
-          component={SignUpScreen}
-          options={{ title: 'Create Account' }}
-        />
-        <Stack.Screen
-          name="ForgotPassword"
-          component={ForgotPasswordScreen}
-          options={{ title: 'Reset Password' }}
+          options={{ title: 'Welcome' }}
         />
         
         {/* My Rooms */}

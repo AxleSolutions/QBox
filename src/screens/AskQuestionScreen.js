@@ -79,10 +79,16 @@ export const AskQuestionScreen = ({ navigation, route }) => {
           {/* Success Message */}
           {success && (
             <View style={styles.successContainer}>
-              <Text style={styles.successIcon}>✅</Text>
-              <View style={styles.successTextContainer}>
-                <Text style={styles.successTitle}>Question Submitted!</Text>
-                <Text style={styles.successMessage}>Your question has been submitted successfully</Text>
+              <View style={styles.successIconCircle}>
+                <Text style={styles.successIcon}>✓</Text>
+              </View>
+              <Text style={styles.successTitle}>Question Submitted!</Text>
+              <Text style={styles.successMessage}>
+                Your anonymous question has been posted successfully. 
+                The lecturer will see it shortly.
+              </Text>
+              <View style={styles.successFooter}>
+                <Text style={styles.successFooterText}>Redirecting you back...</Text>
               </View>
             </View>
           )}
@@ -189,6 +195,82 @@ const styles = StyleSheet.create({
     fontSize: typography.md,
     color: colors.textSecondary,
     lineHeight: typography.lineHeight.relaxed * typography.md,
+  },
+  
+  // Success Message
+  successContainer: {
+    backgroundColor: '#10B981',
+    padding: spacing.xl,
+    borderRadius: borderRadius.xl,
+    marginBottom: spacing.xl,
+    alignItems: 'center',
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  successIconCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.md,
+  },
+  successIcon: {
+    fontSize: 40,
+    fontWeight: typography.bold,
+    color: '#FFFFFF',
+  },
+  successTitle: {
+    fontSize: typography.xl,
+    fontWeight: typography.bold,
+    color: '#FFFFFF',
+    marginBottom: spacing.sm,
+    textAlign: 'center',
+  },
+  successMessage: {
+    fontSize: typography.md,
+    color: 'rgba(255, 255, 255, 0.95)',
+    textAlign: 'center',
+    lineHeight: typography.lineHeight.relaxed * typography.md,
+    marginBottom: spacing.md,
+  },
+  successFooter: {
+    paddingTop: spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.3)',
+    width: '100%',
+    alignItems: 'center',
+  },
+  successFooterText: {
+    fontSize: typography.sm,
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontStyle: 'italic',
+  },
+  
+  // Error Message
+  errorContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#FEE2E2',
+    padding: spacing.md,
+    borderRadius: borderRadius.lg,
+    marginBottom: spacing.lg,
+    alignItems: 'center',
+    borderLeftWidth: 4,
+    borderLeftColor: '#EF4444',
+  },
+  errorIcon: {
+    fontSize: 24,
+    marginRight: spacing.sm,
+  },
+  errorText: {
+    flex: 1,
+    fontSize: typography.sm,
+    color: '#DC2626',
+    lineHeight: typography.lineHeight.normal * typography.sm,
   },
   
   // Anonymous badge

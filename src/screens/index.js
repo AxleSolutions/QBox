@@ -1,8 +1,6 @@
 // Export all screens
 export { default as OnboardingScreen } from './OnboardingScreen';
 export { default as LoginScreen } from './LoginScreen';
-export { default as SignUpScreen } from './SignUpScreen';
-export { default as ForgotPasswordScreen } from './ForgotPasswordScreen';
 export { default as MyRoomsScreen } from './MyRoomsScreen';
 export { default as JoinRoomScreen } from './JoinRoomScreen';
 export { default as CreateRoomScreen } from './CreateRoomScreen';
