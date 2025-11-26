@@ -27,11 +27,6 @@ export const SettingsScreen = ({ navigation, route }) => {
   const [activeModal, setActiveModal] = useState(null);
   const [isOneTimeUser, setIsOneTimeUser] = useState(false);
   
-  // Password change states
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  
   // Generate random anonymous tag for students
   const generateRandomTag = () => {
     const animals = ['Panda', 'Tiger', 'Lion', 'Eagle', 'Dolphin', 'Fox', 'Wolf', 'Bear', 'Koala', 'Owl', 'Rabbit', 'Dragon'];
@@ -139,40 +134,6 @@ export const SettingsScreen = ({ navigation, route }) => {
   const handleOpenEditProfile = () => {
     setTempName(userData?.name || '');
     setActiveModal('editProfile');
-  };
-
-  const handleOpenChangePassword = () => {
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
-    setActiveModal('changePassword');
-  };
-
-  const handleChangePassword = async () => {
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      Alert.alert('Error', 'Please fill in all password fields');
-      return;
-    }
-
-    if (newPassword.length < 6) {
-      Alert.alert('Invalid Password', 'New password must be at least 6 characters long');
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      Alert.alert('Password Mismatch', 'New password and confirmation do not match');
-      return;
-    }
-
-    try {
-      const response = await userAPI.changePassword(currentPassword, newPassword);
-      if (response.success) {
-        setActiveModal(null);
-        Alert.alert('✅ Success', 'Your password has been updated successfully');
-      }
-    } catch (error) {
-      Alert.alert('Error', error.response?.data?.message || 'Failed to change password');
-    }
   };
 
   const handleLogout = () => {
@@ -290,21 +251,6 @@ export const SettingsScreen = ({ navigation, route }) => {
                     thumbColor={colors.white}
                   />
                 }
-              />
-            </Card>
-          </>
-        )}
-
-        {/* Security Section - Only for Lecturers */}
-        {userType === 'lecturer' && (
-          <>
-            <SectionHeader title="Security" />
-            <Card style={styles.section}>
-              <SettingItem
-                icon="🔒"
-                title="Change Password"
-                description="Update your account password"
-                onPress={handleOpenChangePassword}
               />
             </Card>
           </>
@@ -619,77 +565,6 @@ export const SettingsScreen = ({ navigation, route }) => {
         </View>
       </Modal>
 
-      {/* Change Password Modal */}
-      <Modal
-        visible={activeModal === 'changePassword'}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setActiveModal(null)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.editProfileModalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalIcon}>🔐</Text>
-              <Text style={styles.modalTitle}>Change Password</Text>
-            </View>
-
-            <View style={styles.editSection}>
-              <Text style={styles.inputLabel}>Current Password</Text>
-              <TextInput
-                style={styles.input}
-                value={currentPassword}
-                onChangeText={setCurrentPassword}
-                placeholder="Enter current password"
-                placeholderTextColor={colors.textTertiary}
-                secureTextEntry
-                autoFocus
-              />
-            </View>
-
-            <View style={styles.editSection}>
-              <Text style={styles.inputLabel}>New Password</Text>
-              <TextInput
-                style={styles.input}
-                value={newPassword}
-                onChangeText={setNewPassword}
-                placeholder="Enter new password"
-                placeholderTextColor={colors.textTertiary}
-                secureTextEntry
-              />
-              <Text style={styles.inputHint}>Must be at least 6 characters long</Text>
-            </View>
-
-            <View style={styles.editSection}>
-              <Text style={styles.inputLabel}>Confirm New Password</Text>
-              <TextInput
-                style={styles.input}
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                placeholder="Re-enter new password"
-                placeholderTextColor={colors.textTertiary}
-                secureTextEntry
-              />
-            </View>
-
-            <View style={styles.editModalButtons}>
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={() => setActiveModal(null)}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.saveButton}
-                onPress={handleChangePassword}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.saveButtonText}>Update Password</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
     </Screen>
   );
 };

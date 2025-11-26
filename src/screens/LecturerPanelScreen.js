@@ -15,7 +15,7 @@ import * as Clipboard from 'expo-clipboard';
 import { useFocusEffect } from '@react-navigation/native';
 import { Screen, Card } from '../components';
 import { colors, spacing, typography, borderRadius, shadows } from '../theme';
-import { questionAPI, roomAPI, getSocket, initSocket } from '../services/api';
+import { questionAPI, roomsAPI, getSocket, initSocket } from '../services/api';
 
 export const LecturerPanelScreen = ({ navigation, route }) => {
   const { roomCode, roomName, roomStatus, roomId, questionsVisible: initialQuestionsVisible } = route.params || {};

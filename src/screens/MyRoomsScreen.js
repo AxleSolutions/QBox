@@ -73,7 +73,7 @@ export const MyRoomsScreen = ({ navigation }) => {
           onPress: async () => {
             try {
               console.log('Deleting room with ID:', room._id);
-              const response = await roomsAPI.deleteRoom(room._id);
+              const response = await roomAPI.deleteRoom(room._id);
               console.log('Delete response:', response);
               if (response.success) {
                 Alert.alert('Success', 'Room deleted successfully');

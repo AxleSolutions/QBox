@@ -7,6 +7,7 @@ import { colors, spacing, typography, borderRadius } from '../theme';
 import { authAPI, roomsAPI } from '../services/api';
 
 const logo = require('../../assets/Logo/QBox logo png.png');
+const googleLogo = require('../../assets/Logo/google-logo.png');
 
 export const LoginScreen = ({ navigation }) => {
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -45,6 +46,8 @@ export const LoginScreen = ({ navigation }) => {
       const response = await authAPI.googleAuth(tokens.idToken);
       
       if (response.success) {
+        // Clear one-time user flag for Google users
+        await AsyncStorage.removeItem('isOneTimeUser');
         navigation.replace('MyRooms');
       } else {
         setError(response.message || 'Google Sign-In failed');
@@ -136,7 +139,10 @@ export const LoginScreen = ({ navigation }) => {
               onPress={handleGoogleSignIn}
               disabled={googleLoading}
             >
-              <Text style={styles.googleIcon}>G</Text>
+              <Image 
+                source={googleLogo}
+                style={styles.googleIcon}
+              />
               <Text style={styles.googleButtonText}>
                 {googleLoading ? 'Signing in...' : 'Sign in with Google'}
               </Text>
@@ -322,9 +328,9 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   googleIcon: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#4285F4',
+    width: 24,
+    height: 24,
+    marginRight: spacing.sm,
   },
   googleButtonText: {
     fontSize: typography.lg,
