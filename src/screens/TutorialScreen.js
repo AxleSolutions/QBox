@@ -56,11 +56,18 @@ export const TutorialScreen = ({ navigation }) => {
     navigation.replace('Onboarding');
   };
 
+  const onScroll = (event) => {
+    const slideIndex = Math.round(event.nativeEvent.contentOffset.x / width);
+    setCurrentIndex(slideIndex);
+  };
+
   const renderItem = ({ item }) => (
-    <View style={styles.slide}>
-      <Text style={styles.emoji}>{item.emoji}</Text>
-      <Text style={styles.title}>{item.title}</Text>
-      <Text style={styles.description}>{item.description}</Text>
+    <View style={styles.slideContainer}>
+      <View style={styles.slideContent}>
+        <Text style={styles.emoji}>{item.emoji}</Text>
+        <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.description}>{item.description}</Text>
+      </View>
     </View>
   );
 
@@ -83,7 +90,8 @@ export const TutorialScreen = ({ navigation }) => {
           horizontal
           pagingEnabled
           showsHorizontalScrollIndicator={false}
-          scrollEnabled={false}
+          scrollEnabled={true}
+          onMomentumScrollEnd={onScroll}
           style={styles.flatList}
         />
 
@@ -101,14 +109,15 @@ export const TutorialScreen = ({ navigation }) => {
         </View>
 
         {/* Next/Get Started Button */}
-        <Button
-          title={currentIndex === tutorialData.length - 1 ? 'Get Started' : 'Next'}
-          onPress={handleNext}
-          variant="primary"
-          size="large"
-          fullWidth
-          style={styles.button}
-        />
+        <View style={styles.buttonContainer}>
+          <Button
+            title={currentIndex === tutorialData.length - 1 ? 'Get Started' : 'Next'}
+            onPress={handleNext}
+            variant="primary"
+            size="large"
+            fullWidth
+          />
+        </View>
       </View>
     </Screen>
   );
@@ -136,16 +145,22 @@ const styles = StyleSheet.create({
   flatList: {
     flex: 1,
   },
-  slide: {
-    width: width - spacing.lg * 2,
-    marginHorizontal: spacing.lg,
+  slideContainer: {
+    width: width,
+    flex: 1,
+    paddingHorizontal: spacing.xl,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
+  },
+  slideContent: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   emoji: {
     fontSize: 80,
     marginBottom: spacing.xxl,
+    textAlign: 'center',
   },
   title: {
     fontSize: typography.xxl,
@@ -159,7 +174,6 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: typography.lineHeight.relaxed * typography.md,
-    paddingHorizontal: spacing.md,
   },
   pagination: {
     flexDirection: 'row',
@@ -178,9 +192,10 @@ const styles = StyleSheet.create({
     width: 24,
     backgroundColor: colors.primary,
   },
-  button: {
+  buttonContainer: {
+    width: '100%',
+    paddingHorizontal: spacing.lg,
     marginBottom: spacing.lg,
-    marginHorizontal: spacing.lg,
   },
 });
 
