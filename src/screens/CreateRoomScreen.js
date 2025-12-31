@@ -4,6 +4,7 @@ import * as Clipboard from 'expo-clipboard';
 import { Screen, Button, Input, Card } from '../components';
 import { colors, spacing, typography, borderRadius } from '../theme';
 import { roomsAPI } from '../services/api';
+import { incrementRoomsCreated, checkAndShowRating } from '../utils/ratingHelper';
 
 export const CreateRoomScreen = ({ navigation }) => {
   const [roomName, setRoomName] = useState('');
@@ -23,6 +24,10 @@ export const CreateRoomScreen = ({ navigation }) => {
 
       if (response.success) {
         const createdRoom = response.data;
+        
+        // Increment rooms created count for rating prompt
+        await incrementRoomsCreated();
+        
         navigation.navigate('LecturerPanel', {
           roomId: createdRoom._id,
           roomCode: createdRoom.roomCode,
@@ -30,6 +35,9 @@ export const CreateRoomScreen = ({ navigation }) => {
           roomStatus: createdRoom.status,
           questionsVisible: createdRoom.questionsVisible
         });
+        
+        // Check if we should show rating prompt
+        await checkAndShowRating();
       } else {
         Alert.alert('Error', response.message || 'Failed to create room');
       }

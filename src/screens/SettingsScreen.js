@@ -9,12 +9,15 @@ import {
   Alert,
   Modal,
   TextInput,
-  ActivityIndicator
+  ActivityIndicator,
+  Share,
+  Linking
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Screen, Card, Button } from '../components';
 import { colors, spacing, typography, borderRadius } from '../theme';
 import { userAPI } from '../services/api';
+import { showRatingPrompt, markAsRated } from '../utils/ratingHelper';
 
 export const SettingsScreen = ({ navigation, route }) => {
   const userType = route.params?.userType || 'student';
@@ -72,13 +75,16 @@ export const SettingsScreen = ({ navigation, route }) => {
   };
 
   const fetchUserProfile = async () => {
-    // Only fetch profile for lecturers
-    if (userType !== 'lecturer') {
-      setLoading(false);
-      return;
-    }
-
     try {
+      // Check if one-time user first
+      const isOneTime = await AsyncStorage.getItem('isOneTimeUser');
+      
+      // Don't fetch profile for one-time users or students
+      if (isOneTime === 'true' || userType !== 'lecturer') {
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       const response = await userAPI.getProfile();
       if (response.success) {
@@ -87,7 +93,12 @@ export const SettingsScreen = ({ navigation, route }) => {
         setTempEmail(response.data.email);
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to load profile data');
+      console.error('Profile fetch error:', error);
+      // Don't show error alert for one-time users
+      const isOneTime = await AsyncStorage.getItem('isOneTimeUser');
+      if (isOneTime !== 'true') {
+        Alert.alert('Error', 'Failed to load profile data');
+      }
     } finally {
       setLoading(false);
     }
@@ -155,6 +166,53 @@ export const SettingsScreen = ({ navigation, route }) => {
         },
       ]
     );
+  };
+
+  const handleShareWebLink = async () => {
+    try {
+      const result = await Share.share({
+        message: '🎓 QBox - Anonymous Q&A Platform\n\nQBox is available for Android on Google Play Store.\n\niPhone users can access QBox Web:\nhttps://qbox-web.vercel.app/\n\nAsk freely, learn better! 📚',
+        title: 'Share QBox with friends'
+      });
+
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // Shared via activity type
+        } else {
+          // Shared
+        }
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Unable to share at this moment');
+    }
+  };
+
+  const handleRateApp = async () => {
+    try {
+      await showRatingPrompt();
+      await markAsRated();
+    } catch (error) {
+      Alert.alert('Thanks!', 'We appreciate your support! Please rate us on the Play Store.');
+    }
+  };
+
+  const handleContactSupport = async () => {
+    const email = 'axlesolutionsinfo@gmail.com';
+    const subject = 'QBox Support Request';
+    const body = 'Hi QBox Team,\n\nI need help with:\n\n';
+    
+    const mailtoUrl = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    
+    try {
+      const canOpen = await Linking.canOpenURL(mailtoUrl);
+      if (canOpen) {
+        await Linking.openURL(mailtoUrl);
+      } else {
+        Alert.alert('No Email App', 'Please send an email to: axlesolutionsinfo@gmail.com');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Unable to open email app. Please email us at: axlesolutionsinfo@gmail.com');
+    }
   };
 
   const SettingItem = ({ icon, title, description, rightComponent, onPress }) => (
@@ -294,17 +352,24 @@ export const SettingsScreen = ({ navigation, route }) => {
         <SectionHeader title="Support" />
         <Card style={styles.section}>
           <SettingItem
-            icon="💬"
+            icon="🔗"
+            title="Share QBox Web"
+            description="Share web link for iPhone users"
+            onPress={handleShareWebLink}
+          />
+          <View style={styles.divider} />
+          <SettingItem
+            icon="📧"
             title="Contact Support"
             description="Get help and report issues"
-            onPress={() => Alert.alert('Contact Support', 'Need help? Email us at axlesolutionsinfo@gmail.com and we\'ll get back to you within 24 hours.')}
+            onPress={handleContactSupport}
           />
           <View style={styles.divider} />
           <SettingItem
             icon="⭐"
             title="Rate QBox"
             description="Share your feedback on the app store"
-            onPress={() => Alert.alert('Rate QBox', 'Enjoying QBox? Please rate us on the app store! Your feedback helps us improve.')}
+            onPress={handleRateApp}
           />
         </Card>
 

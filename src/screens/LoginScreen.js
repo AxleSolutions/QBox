@@ -1,13 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, Alert, Image, Modal, TextInput } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { Screen, Button, Input } from '../components';
 import { colors, spacing, typography, borderRadius } from '../theme';
 import { authAPI, roomsAPI } from '../services/api';
+import Constants from 'expo-constants';
+import { incrementLoginCount, checkAndShowRating } from '../utils/ratingHelper';
 
 const logo = require('../../assets/Logo/QBox logo png.png');
 const googleLogo = require('../../assets/Logo/google-logo.png');
+
+// Try to import GoogleSignin, but handle if it's not available (Expo Go)
+let GoogleSignin;
+try {
+  GoogleSignin = require('@react-native-google-signin/google-signin').GoogleSignin;
+} catch (e) {
+  console.log('Google Sign-In not available in Expo Go');
+}
 
 export const LoginScreen = ({ navigation }) => {
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -16,16 +25,33 @@ export const LoginScreen = ({ navigation }) => {
   const [userName, setUserName] = useState('');
   const [questionsVisible, setQuestionsVisible] = useState(true);
   const [error, setError] = useState('');
+  const isExpoGo = Constants.appOwnership === 'expo';
 
   useEffect(() => {
-    // Configure Google Sign-In
-    GoogleSignin.configure({
-      webClientId: '531788294144-1ilnampcqrrjianujc9u9q27ts8uqhg3.apps.googleusercontent.com',
-      offlineAccess: false,
-    });
+    // Configure Google Sign-In only if available (not in Expo Go)
+    if (GoogleSignin && !isExpoGo) {
+      try {
+        GoogleSignin.configure({
+          webClientId: '531788294144-1ilnampcqrrjianujc9u9q27ts8uqhg3.apps.googleusercontent.com',
+          offlineAccess: false,
+        });
+      } catch (error) {
+        console.log('Google Sign-In configuration error:', error);
+      }
+    }
   }, []);
 
   const handleGoogleSignIn = async () => {
+    // Check if Google Sign-In is available
+    if (!GoogleSignin || isExpoGo) {
+      Alert.alert(
+        'Not Available in Expo Go',
+        'Google Sign-In requires a production build. Please use "Create One-Time Room" or install the production app from Play Store.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
     try {
       setGoogleLoading(true);
       setError('');
@@ -48,7 +74,14 @@ export const LoginScreen = ({ navigation }) => {
       if (response.success) {
         // Clear one-time user flag for Google users
         await AsyncStorage.removeItem('isOneTimeUser');
+        
+        // Increment login count for rating prompt
+        await incrementLoginCount();
+        
         navigation.replace('MyRooms');
+        
+        // Check if we should show rating prompt
+        await checkAndShowRating();
       } else {
         setError(response.message || 'Google Sign-In failed');
       }
@@ -208,7 +241,7 @@ export const LoginScreen = ({ navigation }) => {
                     style={[styles.roomTypeButton, questionsVisible && styles.roomTypeButtonActive]}
                     onPress={() => setQuestionsVisible(true)}
                   >
-                    <Text style={[styles.roomTypeButtonText, questionsVisible && styles.roomTypeButtonTextActive]}>👁️ Public</Text>
+                    <Text style={[styles.roomTypeButtonText, questionsVisible && styles.roomTypeButtonTextActive]}>Public</Text>
                     <Text style={[styles.roomTypeButtonDesc, questionsVisible && styles.roomTypeButtonDescActive]}>Everyone sees all questions</Text>
                   </TouchableOpacity>
                   
@@ -216,13 +249,13 @@ export const LoginScreen = ({ navigation }) => {
                     style={[styles.roomTypeButton, !questionsVisible && styles.roomTypeButtonActive]}
                     onPress={() => setQuestionsVisible(false)}
                   >
-                    <Text style={[styles.roomTypeButtonText, !questionsVisible && styles.roomTypeButtonTextActive]}>🔒 Private</Text>
+                    <Text style={[styles.roomTypeButtonText, !questionsVisible && styles.roomTypeButtonTextActive]}>Private</Text>
                     <Text style={[styles.roomTypeButtonDesc, !questionsVisible && styles.roomTypeButtonDescActive]}>Students see only their own</Text>
                   </TouchableOpacity>
                 </View>
               </View>
 
-              <View style={styles.modalButtons}>>
+              <View style={styles.modalButtons}>
                 <TouchableOpacity 
                   style={styles.modalButtonCancel}
                   onPress={() => {

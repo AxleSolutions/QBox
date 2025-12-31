@@ -340,7 +340,7 @@ export const LecturerPanelScreen = ({ navigation, route }) => {
 
               if (response.success) {
                 setIsRoomClosed(true);
-                Alert.alert('🔒 Room Closed', 'This room is now closed. Students can no longer submit questions.');
+                Alert.alert('Room Closed', 'This room is now closed. Students can no longer submit questions.');
               } else {
                 Alert.alert('Error', response.message || 'Failed to close room');
               }
@@ -453,7 +453,7 @@ export const LecturerPanelScreen = ({ navigation, route }) => {
           <Text style={styles.roomName}>{roomName || 'My Classroom'}</Text>
           {isRoomClosed && (
             <View style={styles.closedBadge}>
-              <Text style={styles.closedBadgeText}>🔒 Closed</Text>
+              <Text style={styles.closedBadgeText}>Closed</Text>
             </View>
           )}
         </View>
@@ -490,7 +490,7 @@ export const LecturerPanelScreen = ({ navigation, route }) => {
             activeOpacity={0.7}
           >
             <Text style={styles.visibilityText}>
-              {questionsVisible ? '🌐 Public' : '🔒 Private'}
+              {questionsVisible ? 'Public' : 'Private'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -501,7 +501,7 @@ export const LecturerPanelScreen = ({ navigation, route }) => {
             onPress={handleCloseRoom}
             activeOpacity={0.7}
           >
-            <Text style={styles.closeRoomButtonText}>🔒 Close Room</Text>
+            <Text style={styles.closeRoomButtonText}>Close Room</Text>
           </TouchableOpacity>
         )}
       </View>

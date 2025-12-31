@@ -20,7 +20,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/Logo/icon.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#6366F1"
       },
       "package": "com.qbox.anonymousqa",
