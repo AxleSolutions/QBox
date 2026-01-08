@@ -2,14 +2,14 @@
   "expo": {
     "name": "QBox",
     "slug": "qbox-anonymous-qa",
-    "version": "1.0.4",
+    "version": "1.0.8",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "icon": "./assets/Logo/icon.png",
     "splash": {
       "image": "./assets/Logo/icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#6366F1"
+      "backgroundColor": "#FFFFFF"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -20,11 +20,11 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon.png",
+        "foregroundImage": "./assets/Logo/icon.png",
         "backgroundColor": "#6366F1"
       },
       "package": "com.qbox.anonymousqa",
-      "versionCode": 8,
+      "versionCode": 12,
       "permissions": [
         "INTERNET",
         "ACCESS_NETWORK_STATE"

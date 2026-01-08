@@ -4,19 +4,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Screen, Button, Input } from '../components';
 import { colors, spacing, typography, borderRadius } from '../theme';
 import { authAPI, roomsAPI } from '../services/api';
-import Constants from 'expo-constants';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { incrementLoginCount, checkAndShowRating } from '../utils/ratingHelper';
 
 const logo = require('../../assets/Logo/QBox logo png.png');
 const googleLogo = require('../../assets/Logo/google-logo.png');
-
-// Try to import GoogleSignin, but handle if it's not available (Expo Go)
-let GoogleSignin;
-try {
-  GoogleSignin = require('@react-native-google-signin/google-signin').GoogleSignin;
-} catch (e) {
-  console.log('Google Sign-In not available in Expo Go');
-}
 
 export const LoginScreen = ({ navigation }) => {
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -25,33 +17,16 @@ export const LoginScreen = ({ navigation }) => {
   const [userName, setUserName] = useState('');
   const [questionsVisible, setQuestionsVisible] = useState(true);
   const [error, setError] = useState('');
-  const isExpoGo = Constants.appOwnership === 'expo';
 
   useEffect(() => {
-    // Configure Google Sign-In only if available (not in Expo Go)
-    if (GoogleSignin && !isExpoGo) {
-      try {
-        GoogleSignin.configure({
-          webClientId: '531788294144-1ilnampcqrrjianujc9u9q27ts8uqhg3.apps.googleusercontent.com',
-          offlineAccess: false,
-        });
-      } catch (error) {
-        console.log('Google Sign-In configuration error:', error);
-      }
-    }
+    // Configure Google Sign-In
+    GoogleSignin.configure({
+      webClientId: '531788294144-1ilnampcqrrjianujc9u9q27ts8uqhg3.apps.googleusercontent.com',
+      offlineAccess: false,
+    });
   }, []);
 
   const handleGoogleSignIn = async () => {
-    // Check if Google Sign-In is available
-    if (!GoogleSignin || isExpoGo) {
-      Alert.alert(
-        'Not Available in Expo Go',
-        'Google Sign-In requires a production build. Please use "Create One-Time Room" or install the production app from Play Store.',
-        [{ text: 'OK' }]
-      );
-      return;
-    }
-
     try {
       setGoogleLoading(true);
       setError('');

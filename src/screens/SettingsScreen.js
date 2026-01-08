@@ -13,11 +13,13 @@ import {
   Share,
   Linking
 } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Screen, Card, Button } from '../components';
 import { colors, spacing, typography, borderRadius } from '../theme';
 import { userAPI } from '../services/api';
 import { showRatingPrompt, markAsRated } from '../utils/ratingHelper';
+import * as StoreReview from 'expo-store-review';
 
 export const SettingsScreen = ({ navigation, route }) => {
   const userType = route.params?.userType || 'student';
@@ -189,10 +191,34 @@ export const SettingsScreen = ({ navigation, route }) => {
 
   const handleRateApp = async () => {
     try {
-      await showRatingPrompt();
-      await markAsRated();
+      // For production: Try in-app review first
+      const isAvailable = await StoreReview.isAvailableAsync();
+      
+      if (isAvailable) {
+        await StoreReview.requestReview();
+        await markAsRated();
+      } else {
+        // Fallback: Open Play Store directly (works in testing too)
+        const playStoreUrl = 'market://details?id=com.qbox.anonymousqa';
+        const canOpen = await Linking.canOpenURL(playStoreUrl);
+        
+        if (canOpen) {
+          await Linking.openURL(playStoreUrl);
+          await markAsRated();
+        } else {
+          // If Play Store app not available, use web URL
+          await Linking.openURL('https://play.google.com/store/apps/details?id=com.qbox.anonymousqa');
+          await markAsRated();
+        }
+      }
     } catch (error) {
-      Alert.alert('Thanks!', 'We appreciate your support! Please rate us on the Play Store.');
+      console.error('Rating error:', error);
+      // Try opening Play Store as fallback
+      try {
+        await Linking.openURL('https://play.google.com/store/apps/details?id=com.qbox.anonymousqa');
+      } catch (e) {
+        Alert.alert('Thanks!', 'Please search for "QBox" on the Play Store to rate us!');
+      }
     }
   };
 
@@ -204,14 +230,24 @@ export const SettingsScreen = ({ navigation, route }) => {
     const mailtoUrl = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     
     try {
-      const canOpen = await Linking.canOpenURL(mailtoUrl);
-      if (canOpen) {
-        await Linking.openURL(mailtoUrl);
-      } else {
-        Alert.alert('No Email App', 'Please send an email to: axlesolutionsinfo@gmail.com');
-      }
+      // Try to open directly without canOpenURL check (more reliable on Android)
+      await Linking.openURL(mailtoUrl);
     } catch (error) {
-      Alert.alert('Error', 'Unable to open email app. Please email us at: axlesolutionsinfo@gmail.com');
+      // If it fails, show alert with email address
+      Alert.alert(
+        'Contact Support', 
+        'Please send an email to:\n\naxlesolutionsinfo@gmail.com',
+        [
+          {
+            text: 'Copy Email',
+            onPress: () => {
+              Clipboard.setString('axlesolutionsinfo@gmail.com');
+              Alert.alert('Copied', 'Email address copied to clipboard');
+            }
+          },
+          { text: 'OK' }
+        ]
+      );
     }
   };
 
@@ -256,8 +292,8 @@ export const SettingsScreen = ({ navigation, route }) => {
           </Text>
         </View>
 
-        {/* Profile Section - Hidden for one-time users */}
-        {!isOneTimeUser && (
+        {/* Profile Section - Hidden for one-time users, shown for students */}
+        {(!isOneTimeUser || userType === 'student') && (
           <>
             <SectionHeader title="Profile" />
             <Card style={styles.section}>
@@ -292,8 +328,8 @@ export const SettingsScreen = ({ navigation, route }) => {
           </>
         )}
 
-        {/* Notifications Section - Hidden for one-time users */}
-        {!isOneTimeUser && (
+        {/* Notifications Section - Hidden for one-time users, shown for students */}
+        {(!isOneTimeUser || userType === 'student') && (
           <>
             <SectionHeader title="Preferences" />
             <Card style={styles.section}>

@@ -1,42 +1,19 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Image, Animated } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { colors, spacing, typography } from '../theme';
-
-const logo = require('../../assets/Logo/QBox logo png.png');
+import { View, Text, Image, StyleSheet, Animated } from 'react-native';
+import { theme } from '../theme';
 
 export const WelcomeScreen = ({ navigation }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Fade in animation
     Animated.timing(fadeAnim, {
       toValue: 1,
-      duration: 800,
+      duration: 1000,
       useNativeDriver: true,
     }).start();
 
-    // Check if first time user and navigate after 3 seconds
-    const timer = setTimeout(async () => {
-      // Fade out animation
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 600,
-        useNativeDriver: true,
-      }).start();
-
-      // Wait for fade out to complete
-      setTimeout(async () => {
-        const hasSeenTutorial = await AsyncStorage.getItem('hasSeenTutorial');
-        
-        if (hasSeenTutorial === 'true') {
-          // Returning user - go to onboarding
-          navigation.replace('Onboarding');
-        } else {
-          // First time user - go to tutorial
-          navigation.replace('Tutorial');
-        }
-      }, 600);
+    const timer = setTimeout(() => {
+      navigation.replace('Onboarding');
     }, 3000);
 
     return () => clearTimeout(timer);
@@ -45,13 +22,13 @@ export const WelcomeScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
-        <Image 
-          source={logo} 
+        <Image
+          source={require('../../assets/Logo/QBox logo png.png')}
           style={styles.logo}
           resizeMode="contain"
         />
-        <Text style={styles.appName}>QBox</Text>
-        <Text style={styles.slogan}>Ask Freely, Learn Better</Text>
+        <Text style={styles.title}>QBox</Text>
+        <Text style={styles.slogan}>Ask Freely Learn Better</Text>
       </Animated.View>
     </View>
   );
@@ -60,7 +37,7 @@ export const WelcomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: theme.colors.background,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -68,19 +45,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logo: {
-    width: 150,
-    height: 150,
-    marginBottom: spacing.xl,
+    width: 120,
+    height: 120,
+    marginBottom: 24,
   },
-  appName: {
-    fontSize: typography.xxxl + 10,
-    fontWeight: typography.bold,
-    color: colors.textPrimary,
-    marginBottom: spacing.md,
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: theme.colors.text,
+    marginBottom: 8,
   },
   slogan: {
-    fontSize: typography.lg,
-    color: colors.textSecondary,
+    fontSize: 16,
+    color: theme.colors.textSecondary,
     textAlign: 'center',
   },
 });

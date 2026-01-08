@@ -6,7 +6,6 @@ import { colors, typography } from '../theme';
 // Import screens
 import {
   WelcomeScreen,
-  TutorialScreen,
   OnboardingScreen,
   LoginScreen,
   MyRoomsScreen,
@@ -46,15 +45,10 @@ export const AppNavigator = () => {
         initialRouteName="Welcome"
         screenOptions={defaultScreenOptions}
       >
-        {/* Welcome & Tutorial Flow */}
+        {/* Welcome Splash Screen */}
         <Stack.Screen
           name="Welcome"
           component={WelcomeScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Tutorial"
-          component={TutorialScreen}
           options={{ headerShown: false }}
         />
         

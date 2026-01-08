@@ -150,7 +150,9 @@ const styles = StyleSheet.create({
   myQuestionCard: {
     borderLeftWidth: 4,
     borderLeftColor: colors.primary,
-    backgroundColor: colors.primary + '08',
+    backgroundColor: '#E0E7FF',
+    borderWidth: 2,
+    borderColor: colors.primary,
   },
   questionHeader: {
     marginBottom: spacing.xs,

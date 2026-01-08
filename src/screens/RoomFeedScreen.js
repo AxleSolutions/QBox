@@ -30,6 +30,16 @@ export const RoomFeedScreen = ({ navigation, route }) => {
   // Update ref when studentTag changes
   useEffect(() => {
     studentTagRef.current = studentTag;
+    
+    // Recalculate isMyQuestion for all existing questions when tag changes
+    if (studentTag) {
+      setQuestions(prevQuestions => 
+        prevQuestions.map(q => ({
+          ...q,
+          isMyQuestion: q.studentTag === studentTag
+        }))
+      );
+    }
   }, [studentTag]);
 
   // Get student tag from AsyncStorage - reload when screen is focused
@@ -39,6 +49,7 @@ export const RoomFeedScreen = ({ navigation, route }) => {
         try {
           const tag = await AsyncStorage.getItem('studentTag');
           setStudentTag(tag);
+          // Don't fetch questions here - let the other useEffect handle it
         } catch (error) {
           // Error getting student tag
         }
@@ -46,6 +57,14 @@ export const RoomFeedScreen = ({ navigation, route }) => {
       getStudentTag();
     }, [])
   );
+
+  // Fetch questions when studentTag is available
+  useEffect(() => {
+    if (roomId && studentTag) {
+      setLoading(true);
+      fetchQuestions();
+    }
+  }, [roomId, studentTag]);
 
   // Fetch questions from API
   const fetchQuestions = useCallback(async () => {
@@ -141,16 +160,6 @@ export const RoomFeedScreen = ({ navigation, route }) => {
       socket.off('room-visibility-changed', handleVisibilityChanged);
     };
   }, [roomCode]); // Remove studentTag from dependencies to prevent re-setup
-
-  // Fetch questions when screen is focused
-  useFocusEffect(
-    useCallback(() => {
-      if (roomId && studentTag) {
-        setLoading(true);
-        fetchQuestions();
-      }
-    }, [roomId, studentTag, fetchQuestions])
-  );
 
   // Filter questions based on visibility and ownership
   const getVisibleQuestions = () => {
@@ -365,18 +374,16 @@ export const RoomFeedScreen = ({ navigation, route }) => {
         data={getFilteredQuestions()}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
-          <View>
-            <QuestionCard
-              question={item.question}
-              upvotes={item.upvotes}
-              status={item.status}
-              studentTag={item.studentTag}
-              isMyQuestion={item.isMyQuestion}
-              onUpvote={() => handleUpvote(item.id)}
-              onReport={() => handleReport(item.id)}
-              onPress={() => {/* Navigate to question details */}}
-            />
-          </View>
+          <QuestionCard
+            question={item.question}
+            upvotes={item.upvotes}
+            status={item.status}
+            studentTag={item.studentTag}
+            isMyQuestion={item.isMyQuestion}
+            onUpvote={() => handleUpvote(item.id)}
+            onReport={() => handleReport(item.id)}
+            onPress={() => {/* Navigate to question details */}}
+          />
         )}
         ListHeaderComponent={renderHeader}
         ListEmptyComponent={renderEmptyState}
