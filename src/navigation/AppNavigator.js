@@ -38,9 +38,21 @@ const defaultScreenOptions = {
   headerBackTitleVisible: false,
 };
 
+const config = {
+  screens: {
+    JoinRoom: 'room/:roomCode',
+    Welcome: '',
+  },
+};
+
+const linking = {
+  prefixes: ['qbox://', 'https://qbox-web.vercel.app'],
+  config,
+};
+
 export const AppNavigator = () => {
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       <Stack.Navigator
         initialRouteName="Welcome"
         screenOptions={defaultScreenOptions}

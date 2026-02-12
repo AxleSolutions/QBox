@@ -322,6 +322,11 @@ export const userAPI = {
     });
     return response.data;
   },
+
+  updateFcmToken: async (fcmToken) => {
+    const response = await api.put('/users/update-fcm-token', { fcmToken });
+    return response.data;
+  },
 };
 
 export default api;

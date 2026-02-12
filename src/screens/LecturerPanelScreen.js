@@ -306,12 +306,15 @@ export const LecturerPanelScreen = ({ navigation, route }) => {
   const handleShare = async () => {
     try {
       const invitedBy = lecturerName ? `${lecturerName}` : '';
-      const message = `Q&A Session Invitation\n\nYou have been invited by ${invitedBy} to join a live Q&A session.\n\nRoom: ${roomName || 'My Classroom'}\nAccess Code: ${roomCode || 'ABC123'}\n\nPlease open the QBox application and enter the access code to participate.\nAll questions will remain fully anonymous, ensuring a comfortable and open environment for discussion.`;
+      const roomLink = `https://qbox-web.vercel.app/room/${roomCode}`;
+      const message = `Q&A Session Invitation\n\nYou have been invited by ${invitedBy} to join a live Q&A session.\n\nRoom: ${roomName || 'My Classroom'}\nAccess Code: ${roomCode || 'ABC123'}\n\nJoin directly: ${roomLink}\n\nPlease click the link above or open the QBox application and enter the access code to participate.\nAll questions will remain fully anonymous, ensuring a comfortable and open environment for discussion.`;
       
       await Share.share({
         message: message,
+        url: roomLink, // For iOS support
       });
     } catch (error) {
+      console.error('Share Error:', error);
       Alert.alert('Error', 'Could not share room code');
     }
   };

@@ -2,7 +2,7 @@
   "expo": {
     "name": "QBox",
     "slug": "qbox-anonymous-qa",
-    "version": "1.0.8",
+    "version": "1.0.9",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "icon": "./assets/Logo/icon.png",
@@ -18,16 +18,34 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.qbox.anonymousqa"
     },
+    "scheme": "qbox",
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/Logo/icon.png",
         "backgroundColor": "#6366F1"
       },
       "package": "com.qbox.anonymousqa",
-      "versionCode": 12,
+      "versionCode": 13,
       "permissions": [
         "INTERNET",
         "ACCESS_NETWORK_STATE"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "qbox-web.vercel.app",
+              "pathPrefix": "/room"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
       ]
     },
     "web": {

@@ -15,11 +15,53 @@ import {
 } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+import Constants from 'expo-constants';
 import { Screen, Card, Button } from '../components';
 import { colors, spacing, typography, borderRadius } from '../theme';
 import { userAPI } from '../services/api';
 import { showRatingPrompt, markAsRated } from '../utils/ratingHelper';
 import * as StoreReview from 'expo-store-review';
+
+async function registerForPushNotificationsAsync() {
+  let token;
+
+  if (Platform.OS === 'android') {
+    await Notifications.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#FF231F7C',
+    });
+  }
+
+  if (Device.isDevice) {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== 'granted') {
+      alert('Failed to get push token for push notification!');
+      return;
+    }
+    
+    try {
+      const projectId = 
+        Constants?.expoConfig?.extra?.eas?.projectId ?? 
+        Constants?.easConfig?.projectId;
+      token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
+    } catch (e) {
+      console.error('Error getting push token', e);
+    }
+  } else {
+    alert('Must use physical device for Push Notifications');
+  }
+
+  return token;
+}
 
 export const SettingsScreen = ({ navigation, route }) => {
   const userType = route.params?.userType || 'student';
@@ -47,7 +89,44 @@ export const SettingsScreen = ({ navigation, route }) => {
     checkOneTimeUser();
     fetchUserProfile();
     loadStudentTag();
+    loadNotificationPreference();
   }, []);
+
+  const loadNotificationPreference = async () => {
+    try {
+      const enabled = await AsyncStorage.getItem('notificationsEnabled');
+      if (enabled !== null) {
+        setNotificationsEnabled(enabled === 'true');
+      }
+    } catch (error) {
+      console.error('Error loading notification preference:', error);
+    }
+  };
+
+  const handleToggleNotifications = async (value) => {
+    setNotificationsEnabled(value);
+    try {
+      await AsyncStorage.setItem('notificationsEnabled', value.toString());
+      
+      if (value) {
+        // Turning on: register for token
+        const token = await registerForPushNotificationsAsync();
+        if (token && userType === 'lecturer') {
+          await userAPI.updateFcmToken(token);
+        }
+      } else {
+        // Turning off: clear token in backend if lecturer
+        if (userType === 'lecturer') {
+          await userAPI.updateFcmToken(null);
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling notifications:', error);
+      Alert.alert('Error', 'Failed to update notification settings');
+      // Rollback UI
+      setNotificationsEnabled(!value);
+    }
+  };
 
   const checkOneTimeUser = async () => {
     try {
@@ -340,7 +419,7 @@ export const SettingsScreen = ({ navigation, route }) => {
                 rightComponent={
                   <Switch
                     value={notificationsEnabled}
-                    onValueChange={setNotificationsEnabled}
+                    onValueChange={handleToggleNotifications}
                     trackColor={{ false: colors.border, true: colors.primary }}
                     thumbColor={colors.white}
                   />

@@ -4,10 +4,46 @@ import { Screen, Button, RoomCodeInput } from '../components';
 import { colors, spacing, typography } from '../theme';
 import { roomsAPI } from '../services/api';
 
-export const JoinRoomScreen = ({ navigation }) => {
+export const JoinRoomScreen = ({ navigation, route }) => {
   const [roomCode, setRoomCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Handle room code from deep link
+  React.useEffect(() => {
+    const code = route.params?.roomCode;
+    if (code) {
+      setRoomCode(code.toUpperCase());
+      // Small delay to ensure state is set before joining
+      setTimeout(() => {
+        handleJoinRoomAuto(code.trim().toUpperCase());
+      }, 500);
+    }
+  }, [route.params?.roomCode]);
+
+  const handleJoinRoomAuto = async (code) => {
+    setLoading(true);
+    setError('');
+    try {
+      const response = await roomsAPI.joinRoom(code);
+      if (response.success) {
+        navigation.navigate('RoomFeed', {
+          roomId: response.data.roomId,
+          roomCode: response.data.roomCode,
+          questionsVisible: response.data.questionsVisible,
+          roomName: response.data.roomName,
+          lecturerName: response.data.lecturerName,
+          status: response.data.status
+        });
+      } else {
+        setError(response.message || 'Failed to join room');
+      }
+    } catch (error) {
+      setError(error.response?.data?.message || 'Invalid room code');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleJoinRoom = async () => {
     if (roomCode.length !== 6) {

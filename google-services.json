@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1000844352473",
+    "project_id": "qbox---annonymous-q-and-a",
+    "storage_bucket": "qbox---annonymous-q-and-a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1000844352473:android:ff795cf1a891039fc917c8",
+        "android_client_info": {
+          "package_name": "com.qbox.anonymousqa"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0JBX8Y1fhUqT_OqwaFAWq5sAT5Fk2YOs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
