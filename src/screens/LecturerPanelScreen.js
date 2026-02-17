@@ -300,13 +300,24 @@ export const LecturerPanelScreen = ({ navigation, route }) => {
   const handleRefresh = async () => {
     setRefreshing(true);
     await fetchQuestions();
-    setRefreshing(false);
+      setRefreshing(false);
   };
 
   const handleShare = async () => {
     try {
+      console.log('Sharing Room - Params:', { roomCode, roomId, roomName });
+      
+      // Ensure we have a valid room code. If mistakenly using ID, warn.
+      if (!roomCode || roomCode.length > 10) {
+        console.warn('WARNING: roomCode appears to be invalid or an ID:', roomCode);
+      }
+
       const invitedBy = lecturerName ? `${lecturerName}` : '';
-      const roomLink = `https://qbox-web.vercel.app/room/${roomCode}`;
+      const linkCode = roomCode || roomId; // Fallback to ID if code missing (for debugging)
+      const roomLink = `https://qbox-web.vercel.app/room/${linkCode}`;
+      
+      console.log('Generated Link:', roomLink);
+
       const message = `Q&A Session Invitation\n\nYou have been invited by ${invitedBy} to join a live Q&A session.\n\nRoom: ${roomName || 'My Classroom'}\nAccess Code: ${roomCode || 'ABC123'}\n\nJoin directly: ${roomLink}\n\nPlease click the link above or open the QBox application and enter the access code to participate.\nAll questions will remain fully anonymous, ensuring a comfortable and open environment for discussion.`;
       
       await Share.share({
